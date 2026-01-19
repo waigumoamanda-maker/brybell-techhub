@@ -1,0 +1,313 @@
+<!-- register.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Brybell TechHub</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background) 100%);
+        }
+        
+        .auth-card {
+            background-color: var(--color-background);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .auth-header p {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background-color: var(--color-surface);
+            color: var(--color-text);
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .error-message {
+            color: #DC3545;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        
+        .strength-weak { color: #DC3545; }
+        .strength-medium { color: #FFC107; }
+        .strength-strong { color: #28A745; }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+        
+        .auth-footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            color: var(--color-text);
+        }
+        
+        .terms {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-top: 15px;
+        }
+        
+        .terms a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="auth-container">
+        <div class="auth-card">
+            <a href="index.html" class="back-link">
+                ← Back to Store
+            </a>
+            
+            <div class="auth-header">
+                <h1>Create Account</h1>
+                <p>Join Brybell TechHub today</p>
+            </div>
+            
+            <form id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" placeholder="John" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" placeholder="Doe" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="you@example.com" required>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="0712345678" required>
+                    <div class="error-message" id="phoneError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Minimum 8 characters" required minlength="8">
+                    <div class="password-strength" id="passwordStrength"></div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Re-enter password" required>
+                    <div class="error-message" id="confirmPasswordError"></div>
+                </div>
+                
+                <div class="error-message" id="generalError"></div>
+                
+                <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
+                    Create Account
+                </button>
+                
+                <div class="terms">
+                    By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                </div>
+            </form>
+            
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if already logged in
+            if (localStorage.getItem('access_token')) {
+                window.location.href = 'index.html';
+            }
+            
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            document.getElementById('password').addEventListener('input', checkPasswordStrength);
+        });
+        
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthEl = document.getElementById('passwordStrength');
+            
+            if (password.length === 0) {
+                strengthEl.textContent = '';
+                return;
+            }
+            
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            if (strength <= 1) {
+                strengthEl.textContent = 'Weak password';
+                strengthEl.className = 'password-strength strength-weak';
+            } else if (strength <= 3) {
+                strengthEl.textContent = 'Medium password';
+                strengthEl.className = 'password-strength strength-medium';
+            } else {
+                strengthEl.textContent = 'Strong password';
+                strengthEl.className = 'password-strength strength-strong';
+            }
+        }
+        
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            const registerBtn = document.getElementById('registerBtn');
+            const generalError = document.getElementById('generalError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            
+            // Clear previous errors
+            generalError.classList.remove('show');
+            confirmPasswordError.classList.remove('show');
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                confirmPasswordError.textContent = 'Passwords do not match';
+                confirmPasswordError.classList.add('show');
+                return;
+            }
+            
+            // Disable button
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Creating Account...';
+            
+            try {
+                const response = await fetch(`${API_CONFIG.USER_SERVICE}/api/users/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        phone,
+                        password,
+                        first_name: firstName,
+                        last_name: lastName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Registration failed');
+                }
+                
+                // Store tokens and user info
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('refresh_token', data.refresh_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Redirect to home
+                window.location.href = 'index.html';
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                generalError.textContent = error.message;
+                generalError.classList.add('show');
+                
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Create Account';
+            }
+        }
+    </script>
+</body>
+</html>

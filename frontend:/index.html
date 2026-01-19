@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brybell TechHub - Premium Tech Marketplace</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body data-theme="light">
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <h1>BRYBELL</h1>
+                    <span>TECHHUB</span>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <input type="search" id="searchInput" placeholder="Search for phones, laptops, PlayStations...">
+                    <button id="searchBtn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                    <div id="searchSuggestions" class="search-suggestions"></div>
+                </div>
+                
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="icon-btn" title="Toggle theme">
+                        <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- User Menu -->
+                    <div class="user-menu" id="userMenu">
+                        <button class="icon-btn" id="userBtn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                                <path d="M6 21c0-3.5 2.5-6 6-6s6 2.5 6 6" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu" id="userDropdown">
+                            <a href="login.html" class="auth-link">Login</a>
+                            <a href="register.html" class="auth-link">Register</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Cart -->
+                    <button class="icon-btn cart-btn" id="cartBtn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 2L7 6M17 6l2-4M3 6h18M5 6l2 14h10l2-14" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="products.html?category=phones" class="nav-link">Phones</a>
+                <a href="products.html?category=laptops" class="nav-link">Laptops</a>
+                <a href="products.html?category=playstation" class="nav-link">PlayStation</a>
+                <a href="products.html?category=tvs" class="nav-link">TVs</a>
+                <a href="products.html" class="nav-link">All Products</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Premium Tech.<br>Exceptional Experience.</h2>
+                <p>Discover the latest gadgets and electronics with seamless M-Pesa payments</p>
+                <a href="products.html" class="btn btn-primary">Shop Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="featured-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Featured Products</h2>
+                <a href="products.html" class="view-all">View All →</a>
+            </div>
+            <div id="featuredProducts" class="product-grid">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="categories-section">
+        <div class="container">
+            <h2>Shop by Category</h2>
+            <div class="categories-grid">
+                <a href="products.html?category=phones" class="category-card">
+                    <div class="category-icon">📱</div>
+                    <h3>Mobile Phones</h3>
+                    <p>Latest smartphones</p>
+                </a>
+                <a href="products.html?category=laptops" class="category-card">
+                    <div class="category-icon">💻</div>
+                    <h3>Laptops</h3>
+                    <p>Powerful computing</p>
+                </a>
+                <a href="products.html?category=playstation" class="category-card">
+                    <div class="category-icon">🎮</div>
+                    <h3>PlayStation</h3>
+                    <p>Gaming consoles</p>
+                </a>
+                <a href="products.html?category=tvs" class="category-card">
+                    <div class="category-icon">📺</div>
+                    <h3>Smart TVs</h3>
+                    <p>Home entertainment</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <button id="closeCart" class="close-btn">×</button>
+        </div>
+        <div id="cartItems" class="cart-items">
+            <!-- Cart items will be loaded here -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">KES 0</span>
+            </div>
+            <a href="checkout.html" class="btn btn-primary btn-block">Checkout</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>BRYBELL TECHHUB</h3>
+                    <p>Your trusted source for premium tech products in Kenya.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Shop</h4>
+                    <a href="products.html?category=phones">Mobile Phones</a>
+                    <a href="products.html?category=laptops">Laptops</a>
+                    <a href="products.html?category=playstation">PlayStation</a>
+                    <a href="products.html?category=tvs">Smart TVs</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="#">Contact Us</a>
+                    <a href="#">Shipping Info</a>
+                    <a href="#">Returns</a>
+                    <a href="#">FAQs</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Brybell TechHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: brybell
+      POSTGRES_PASSWORD: brybell_password_2026
+      POSTGRES_DB: brybell_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - brybell_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - brybell_network
+
+  # Elasticsearch
+  elasticsearch:
+    image: elasticsearch:8.8.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - brybell_network
+
+  # RabbitMQ Message Queue
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: brybell
+      RABBITMQ_DEFAULT_PASS: brybell_rabbitmq
+    networks:
+      - brybell_network
+
+  # Product Service
+  product-service:
+    build: ./product_service
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql://brybell:brybell_password_2026@postgres:5432/brybell_db
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - brybell_network
+    restart: unless-stopped
+
+  # User Service
+  user-service:
+    build: ./user_service
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: postgresql://brybell:brybell_password_2026@postgres:5432/brybell_db
+      SECRET_KEY: your-super-secret-key-change-in-production
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - brybell_network
+    restart: unless-stopped
+
+  # Order Service
+  order-service:
+    build: ./order_service
+    ports:
+      - "8003:8003"
+    environment:
+      DATABASE_URL: postgresql://brybell:brybell_password_2026@postgres:5432/brybell_db
+      RABBITMQ_URL: amqp://brybell:brybell_rabbitmq@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - brybell_network
+    restart: unless-stopped
+
+  # Payment Service (PHP/Laravel)
+  payment-service:
+    build: ./payment_service
+    ports:
+      - "8004:8004"
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: brybell_db
+      DB_USERNAME: brybell
+      DB_PASSWORD: brybell_password_2026
+      MPESA_CONSUMER_KEY: ${MPESA_CONSUMER_KEY}
+      MPESA_CONSUMER_SECRET: ${MPESA_CONSUMER_SECRET}
+      MPESA_PASSKEY: ${MPESA_PASSKEY}
+      MPESA_SHORTCODE: ${MPESA_SHORTCODE}
+      MPESA_ENVIRONMENT: sandbox
+      ORDER_SERVICE_URL: http://order-service:8003
+    depends_on:
+      - postgres
+    networks:
+      - brybell_network
+    restart: unless-stopped
+
+  # Search Service
+  search-service:
+    build: ./search_service
+    ports:
+      - "8005:8005"
+    environment:
+      ELASTICSEARCH_HOST: elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - brybell_network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build: ./api_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: your-super-secret-key-change-in-production
+    depends_on:
+      - product-service
+      - user-service
+      - order-service
+      - payment-service
+      - search-service
+    networks:
+      - brybell_network
+    restart: unless-stopped
+
+  # Nginx (Frontend & Reverse Proxy)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api-gateway
+    networks:
+      - brybell_network
+    restart: unless-stopped
+
+networks:
+  brybell_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  elasticsearch_data:
+
+---
+# Dockerfile for Python Services (FastAPI)
+# Save as: product_service/Dockerfile, user_service/Dockerfile, etc.
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8001
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+
+---
+# requirements.txt for Python Services
+
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+pydantic[email]==2.5.0
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.6
+redis==5.0.1
+elasticsearch==8.11.0
+
+---
+# Dockerfile for Payment Service (PHP/Laravel)
+# Save as: payment_service/Dockerfile
+
+FROM php:8.2-fpm-alpine
+
+WORKDIR /var/www/html
+
+# Install dependencies
+RUN apk add --no-cache \
+    postgresql-dev \
+    $PHPIZE_DEPS \
+    && docker-php-ext-install pdo pdo_pgsql \
+    && pecl install redis \
+    && docker-php-ext-enable redis
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy application
+COPY . .
+
+# Install Laravel dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+EXPOSE 8004
+
+CMD php artisan serve --host=0.0.0.0 --port=8004
+
+---
+# Dockerfile for API Gateway (Node.js)
+# Save as: api_gateway/Dockerfile
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["node", "server.js"]
+
+---
+# nginx.conf
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    upstream api_gateway {
+        server api-gateway:8000;
+    }
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        # Frontend
+        location / {
+            root /usr/share/nginx/html;
+            try_files $uri $uri/ /index.html;
+        }
+
+        # API Gateway Proxy
+        location /api/ {
+            proxy_pass http://api_gateway;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}
+
+---
+# .env.example
+# Copy to .env and fill in values
+
+# Database
+DATABASE_URL=postgresql://brybell:brybell_password_2026@localhost:5432/brybell_db
+
+# JWT Secret
+SECRET_KEY=your-super-secret-key-change-in-production
+
+# M-Pesa Credentials (Get from Daraja Portal)
+MPESA_CONSUMER_KEY=your_consumer_key
+MPESA_CONSUMER_SECRET=your_consumer_secret
+MPESA_PASSKEY=your_passkey
+MPESA_SHORTCODE=your_shortcode
+MPESA_ENVIRONMENT=sandbox
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# Elasticsearch
+ELASTICSEARCH_HOST=localhost:9200
+
+# RabbitMQ
+RABBITMQ_URL=amqp://brybell:brybell_rabbitmq@localhost:5672
+
+---
+# Deployment Commands
+
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Rebuild services
+docker-compose up -d --build
+
+# Scale a service
+docker-compose up -d --scale product-service=3
+
+# Database migrations
+docker-compose exec product-service python -c "from main import Base, engine; Base.metadata.create_all(bind=engine)"
+
+---
+# Production Deployment Checklist
+
+1. Environment Setup
+   - [ ] Update all SECRET_KEY values
+   - [ ] Configure production M-Pesa credentials
+   - [ ] Set up SSL certificates
+   - [ ] Configure domain DNS
+
+2. Database
+   - [ ] Set up automated backups
+   - [ ] Configure connection pooling
+   - [ ] Enable query logging
+
+3. Security
+   - [ ] Enable HTTPS
+   - [ ] Configure firewall rules
+   - [ ] Set up rate limiting
+   - [ ] Enable CORS properly
+
+4. Monitoring
+   - [ ] Set up application monitoring (Sentry)
+   - [ ] Configure log aggregation
+   - [ ] Set up uptime monitoring
+   - [ ] Enable health checks
+
+5. Performance
+   - [ ] Enable Redis caching
+   - [ ] Configure CDN for static assets
+   - [ ] Optimize database indices
+   - [ ] Enable gzip compression
+
+6. Backup & Recovery
+   - [ ] Automated database backups
+   - [ ] Disaster recovery plan
+   - [ ] Test restore procedures

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Brybell TechHub</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .product-detail-page {
+            padding: 40px 0;
+        }
+        
+        .product-detail-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+        
+        .product-images {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        .main-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 12px;
+            background-color: var(--color-surface);
+            margin-bottom: 15px;
+        }
+        
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .thumbnail {
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        
+        .thumbnail:hover,
+        .thumbnail.active {
+            border-color: var(--color-primary);
+        }
+        
+        .product-info-section h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .product-brand {
+            color: var(--color-text-secondary);
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .product-price {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+        
+        .stock-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        
+        .stock-status.in-stock {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+        
+        .stock-status.out-of-stock {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+        
+        .product-description {
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .quantity-selector label {
+            font-weight: 600;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 5px;
+        }
+        
+        .quantity-btn {
+            background-color: var(--color-surface);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quantity-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .add-to-cart-btn {
+            flex: 1;
+            padding: 16px 32px;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .add-to-cart-btn:hover {
+            background-color: #0052CC;
+            transform: translateY(-2px);
+        }
+        
+        .buy-now-btn {
+            flex: 1;
+            padding: 16px 32px;
+            background-color: var(--color-text);
+            color: var(--color-background);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .product-specs {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .product-specs h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .spec-item:last-child {
+            border-bottom: none;
+        }
+        
+        .spec-label {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+        
+        .spec-value {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .related-products {
+            margin-top: 80px;
+        }
+        
+        .related-products h2 {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .product-detail-layout {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .product-images {
+                position: static;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">
+                    <h1>BRYBELL</h1>
+                    <span>TECHHUB</span>
+                </div>
+                
+                <div class="search-container">
+                    <input type="search" id="searchInput" placeholder="Search for phones, laptops, PlayStations...">
+                    <button id="searchBtn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="header-actions">
+                    <button id="themeToggle" class="icon-btn">
+                        <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                    
+                    <button class="icon-btn cart-btn" id="cartBtn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 2L7 6M17 6l2-4M3 6h18M5 6l2 14h10l2-14" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
+            </div>
+            
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="products.html?category=phones" class="nav-link">Phones</a>
+                <a href="products.html?category=laptops" class="nav-link">Laptops</a>
+                <a href="products.html?category=playstation" class="nav-link">PlayStation</a>
+                <a href="products.html?category=tvs" class="nav-link">TVs</a>
+                <a href="products.html" class="nav-link">All Products</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="product-detail-page">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span>›</span>
+                <a href="products.html">Products</a>
+                <span>›</span>
+                <span id="breadcrumbProduct">Product</span>
+            </div>
+            
+            <div id="productContainer">
+                <p style="text-align: center; padding: 60px;">Loading product...</p>
+            </div>
+            
+            <div class="related-products">
+                <h2>You May Also Like</h2>
+                <div id="relatedProducts" class="product-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <button id="closeCart" class="close-btn">×</button>
+        </div>
+        <div id="cartItems" class="cart-items"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">KES 0</span>
+            </div>
+            <a href="checkout.html" class="btn btn-primary btn-block">Checkout</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>BRYBELL TECHHUB</h3>
+                    <p>Your trusted source for premium tech products in Kenya.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Brybell TechHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        let currentProduct = null;
+        let selectedQuantity = 1;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            if (productId) {
+                loadProduct(productId);
+            } else {
+                window.location.href = 'products.html';
+            }
+        });
+        
+        async function loadProduct(productId) {
+            try {
+                const response = await fetch(`${API_CONFIG.PRODUCT_SERVICE}/api/products/${productId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Product not found');
+                }
+                
+                currentProduct = await response.json();
+                displayProduct(currentProduct);
+                loadRelatedProducts(currentProduct.category);
+                
+            } catch (error) {
+                console.error('Error loading product:', error);
+                document.getElementById('productContainer').innerHTML = `
+                    <div style="text-align: center; padding: 60px;">
+                        <h2>Product Not Found</h2>
+                        <p style="color: var(--color-text-secondary); margin: 20px 0;">The product you're looking for doesn't exist.</p>
+                        <a href="products.html" class="btn btn-primary">Browse Products</a>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayProduct(product) {
+            document.getElementById('breadcrumbProduct').textContent = product.name;
+            document.title = `${product.name} - Brybell TechHub`;
+            
+            const inStock = product.stock_quantity > 0;
+            
+            const html = `
+                <div class="product-detail-layout">
+                    <div class="product-images">
+                        <img src="${product.image_url || 'https://via.placeholder.com/600'}" alt="${product.name}" class="main-image" id="mainImage">
+                        <div class="thumbnail-grid">
+                            <img src="${product.image_url || 'https://via.placeholder.com/150'}" alt="${product.name}" class="thumbnail active" onclick="changeMainImage(this)">
+                            <img src="${product.image_url || 'https://via.placeholder.com/150'}" alt="${product.name}" class="thumbnail" onclick="changeMainImage(this)">
+                            <img src="${product.image_url || 'https://via.placeholder.com/150'}" alt="${product.name}" class="thumbnail" onclick="changeMainImage(this)">
+                            <img src="${product.image_url || 'https://via.placeholder.com/150'}" alt="${product.name}" class="thumbnail" onclick="changeMainImage(this)">
+                        </div>
+                    </div>
+                    
+                    <div class="product-info-section">
+                        <h1>${product.name}</h1>
+                        <div class="product-brand">${product.brand || 'Brybell TechHub'}</div>
+                        <div class="product-price">KES ${product.price.toLocaleString()}</div>
+                        <div class="stock-status ${inStock ? 'in-stock' : 'out-of-stock'}">
+                            ${inStock ? `✓ In Stock (${product.stock_quantity} available)` : '✗ Out of Stock'}
+                        </div>
+                        
+                        <div class="product-description">
+                            <p>${product.description || 'Premium quality product from Brybell TechHub. Experience the best in tech innovation with warranty and exceptional customer service.'}</p>
+                        </div>
+                        
+                        ${inStock ? `
+                        <div class="quantity-selector">
+                            <label>Quantity:</label>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity()">−</button>
+                                <span class="quantity-value" id="quantityValue">1</span>
+                                <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="add-to-cart-btn" onclick="addToCartFromDetail()">
+                                🛒 Add to Cart
+                            </button>
+                            <button class="buy-now-btn" onclick="buyNow()">
+                                Buy Now
+                            </button>
+                        </div>
+                        ` : '<button class="btn btn-secondary btn-block" disabled>Out of Stock</button>'}
+                        
+                        <div class="product-specs">
+                            <h3>Product Specifications</h3>
+                            <div class="spec-item">
+                                <span class="spec-label">Category</span>
+                                <span class="spec-value">${product.category}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Brand</span>
+                                <span class="spec-value">${product.brand || 'N/A'}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Stock Status</span>
+                                <span class="spec-value">${inStock ? 'In Stock' : 'Out of Stock'}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Product ID</span>
+                                <span class="spec-value">#${product.id}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 20px; background-color: var(--color-surface); border-radius: 8px; border: 1px solid var(--color-border);">
+                            <h4 style="margin-bottom: 10px;">🚚 Delivery Information</h4>
+                            <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 8px;">• Free delivery within Nairobi</p>
+                            <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 8px;">• Delivery within 2-3 business days</p>
+                            <p style="font-size: 14px; color: var(--color-text-secondary);">• Pay on delivery available</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('productContainer').innerHTML = html;
+        }
+        
+        function changeMainImage(thumbnail) {
+            document.getElementById('mainImage').src = thumbnail.src;
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            thumbnail.classList.add('active');
+        }
+        
+        function increaseQuantity() {
+            if (selectedQuantity < currentProduct.stock_quantity) {
+                selectedQuantity++;
+                document.getElementById('quantityValue').textContent = selectedQuantity;
+            }
+        }
+        
+        function decreaseQuantity() {
+            if (selectedQuantity > 1) {
+                selectedQuantity--;
+                document.getElementById('quantityValue').textContent = selectedQuantity;
+            }
+        }
+        
+        function addToCartFromDetail() {
+            if (currentProduct) {
+                cart.addItem({
+                    id: currentProduct.id,
+                    name: currentProduct.name,
+                    price: currentProduct.price,
+                    image_url: currentProduct.image_url
+                }, selectedQuantity);
+            }
+        }
+        
+        function buyNow() {
+            addToCartFromDetail();
+            window.location.href = 'checkout.html';
+        }
+        
+        async function loadRelatedProducts(category) {
+            try {
+                const response = await fetch(`${API_CONFIG.PRODUCT_SERVICE}/api/products/category/${category}?limit=4`);
+                const products = await response.json();
+                
+                const relatedHtml = products
+                    .filter(p => p.id !== currentProduct.id)
+                    .slice(0, 4)
+                    .map(product => `
+                        <div class="product-card" onclick="window.location.href='product.html?id=${product.id}'">
+                            <img src="${product.image_url || 'https://via.placeholder.com/300'}" alt="${product.name}" class="product-image">
+                            <div class="product-info">
+                                <div class="product-name">${product.name}</div>
+                                <div class="product-brand">${product.brand || ''}</div>
+                                <div class="product-price">KES ${product.price.toLocaleString()}</div>
+                                <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id}, '${product.name}', ${product.price}, '${product.image_url || ''}')">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                
+                document.getElementById('relatedProducts').innerHTML = relatedHtml;
+                
+            } catch (error) {
+                console.error('Error loading related products:', error);
+            }
+        }
+        
+        function addToCart(id, name, price, image) {
+            cart.addItem({ id, name, price, image_url: image });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!-- order-confirmation.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed - Brybell TechHub</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .confirmation-container {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        
+        .confirmation-card {
+            max-width: 600px;
+            width: 100%;
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 50px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #28A745;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            color: white;
+            font-size: 48px;
+        }
+        
+        .confirmation-card h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        
+        .confirmation-card p {
+            color: var(--color-text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .order-details {
+            background-color: var(--color-background);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .order-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .order-detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .order-detail-label {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+        
+        .order-detail-value {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">
+                    <h1>BRYBELL</h1>
+                    <span>TECHHUB</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="confirmation-container">
+        <div class="confirmation-card">
+            <div class="success-icon">✓</div>
+            <h1>Order Confirmed!</h1>
+            <p>Thank you for your purchase. Your order has been successfully placed and payment confirmed.</p>
+            
+            <div class="order-details" id="orderDetails">
+                <p style="text-align: center; padding: 20px;">Loading order details...</p>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="index.html" class="btn btn-secondary" style="flex: 1;">Continue Shopping</a>
+                <a href="orders.html" class="btn btn-primary" style="flex: 1;">View Orders</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>BRYBELL TECHHUB</h3>
+                    <p>Your trusted source for premium tech products in Kenya.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Brybell TechHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('order');
+            
+            if (orderId) {
+                loadOrderDetails(orderId);
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        async function loadOrderDetails(orderId) {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`${API_CONFIG.ORDER_SERVICE}/api/orders/${orderId}`, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Order not found');
+                }
+                
+                const order = await response.json();
+                displayOrderDetails(order);
+                
+            } catch (error) {
+                console.error('Error loading order:', error);
+                document.getElementById('orderDetails').innerHTML = `
+                    <p style="text-align: center; color: var(--color-text-secondary);">
+                        Unable to load order details
+                    </p>
+                `;
+            }
+        }
+        
+        function displayOrderDetails(order) {
+            const html = `
+                <div class="order-detail-row">
+                    <span class="order-detail-label">Order Number</span>
+                    <span class="order-detail-value">#${order.id}</span>
+                </div>
+                <div class="order-detail-row">
+                    <span class="order-detail-label">Tracking Number</span>
+                    <span class="order-detail-value">${order.tracking_number}</span>
+                </div>
+                <div class="order-detail-row">
+                    <span class="order-detail-label">Order Date</span>
+                    <span class="order-detail-value">${new Date(order.created_at).toLocaleDateString()}</span>
+                </div>
+                <div class="order-detail-row">
+                    <span class="order-detail-label">Total Amount</span>
+                    <span class="order-detail-value">KES ${order.total_amount.toLocaleString()}</span>
+                </div>
+                <div class="order-detail-row">
+                    <span class="order-detail-label">Payment Status</span>
+                    <span class="order-detail-value" style="color: #28A745;">✓ Paid</span>
+                </div>
+                <div class="order-detail-row">
+                    <span class="order-detail-label">Delivery Address</span>
+                    <span class="order-detail-value">${order.shipping_address}</span>
+                </div>
+            `;
+            
+            document.getElementById('orderDetails').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
+
+<!-- js/admin.js -->
+<script>
+// Admin Dashboard JavaScript
+
+let currentSection = 'dashboard';
+let allOrders = [];
+let allProducts = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Check admin authentication
+    checkAdminAuth();
+    
+    // Initialize theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    
+    // Load dashboard data
+    loadDashboardData();
+});
+
+function checkAdminAuth() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    if (!token || user.role !== 'admin') {
+        window.location.href = 'login.html';
+    }
+}
+
+function showSection(section) {
+    // Hide all sections
+    document.querySelectorAll('[id$="-section"]').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Show selected section
+    document.getElementById(`${section}-section`).style.display = 'block';
+    
+    // Update active nav link
+    document.querySelectorAll('.admin-nav a').forEach(link => {
+        link.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    currentSection = section;
+    
+    // Load section data
+    switch(section) {
+        case 'dashboard':
+            loadDashboardData();
+            break;
+        case 'products':
+            loadProducts();
+            break;
+        case 'orders':
+            loadOrders();
+            break;
+    }
+}
+
+async function loadDashboardData() {
+    try {
+        // Load stats
+        const statsResponse = await fetch(`${API_CONFIG.ORDER_SERVICE}/api/orders/stats/summary`);
+        const stats = await statsResponse.json();
+        
+        document.getElementById('totalRevenue').textContent = `KES ${stats.total_revenue.toLocaleString()}`;
+        document.getElementById('totalOrders').textContent = stats.total_orders;
+        document.getElementById('pendingOrders').textContent = stats.pending_orders;
+        
+        // Load products count
+        const productsResponse = await fetch(`${API_CONFIG.PRODUCT_SERVICE}/api/products`);
+        const products = await productsResponse.json();
+        document.getElementById('totalProducts').textContent = products.length;
+        
+        // Load recent orders
+        loadRecentOrders();
+        
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+async function loadRecentOrders() {
+    try {
+        const response = await fetch(`${API_CONFIG.ORDER_SERVICE}/api/orders?limit=10`);
+        const orders = await response.json();
+        
+        const tableBody = document.getElementById('recentOrdersTable');
+        
+        if (orders.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No orders yet</td></tr>';
+            return;
+        }
+        
+        tableBody.innerHTML = orders.map(order => `
+            <tr>
+                <td>#${order.id}</td>
+                <td>${order.phone_number}</td>
+                <td>KES ${order.total_amount.toLocaleString()}</td>
+                <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="action-btn" onclick="viewOrder(${order.id})">View</button>
+                </td>
+            </tr>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading recent orders:', error);
+    }
+}
+
+async function loadProducts() {
+    try {
+        const response = await fetch(`${API_CONFIG.PRODUCT_SERVICE}/api/products?limit=100`);
+        allProducts = await response.json();
+        
+        const tableBody = document.getElementById('productsTable');
+        
+        if (allProducts.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No products yet</td></tr>';
+            return;
+        }
+        
+        tableBody.innerHTML = allProducts.map(product => `
+            <tr>
+                <td>${product.id}</td>
+                <td>${product.name}</td>
+                <td>${product.category}</td>
+                <td>KES ${product.price.toLocaleString()}</td>
+                <td>${product.stock_quantity}</td>
+                <td>
+                    <button class="action-btn" onclick="editProduct(${product.id})">Edit</button>
+                    <button class="action-btn" onclick="deleteProduct(${product.id})">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading products:', error);
+    }
+}
+
+async function loadOrders(status = '') {
+    try {
+        let url = `${API_CONFIG.ORDER_SERVICE}/api/orders?limit=100`;
+        if (status) {
+            url += `&status=${status}`;
+        }
+        
+        const response = await fetch(url);
+        allOrders = await response.json();
+        
+        const tableBody = document.getElementById('ordersTable');
+        
+        if (allOrders.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No orders found</td></tr>';
+            return;
+        }
+        
+        tableBody.innerHTML = allOrders.map(order => `
+            <tr>
+                <td>#${order.id}</td>
+                <td>${order.phone_number}</td>
+                <td>KES ${order.total_amount.toLocaleString()}</td>
+                <td><span class="status-badge status-${order.payment_status}">${order.payment_status}</span></td>
+                <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="action-btn" onclick="viewOrder(${order.id})">View</button>
+                    <button class="action-btn" onclick="updateOrderStatus(${order.id})">Update</button>
+                </td>
+            </tr>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading orders:', error);
+    }
+}
+
+function filterOrders() {
+    const status = document.getElementById('orderStatusFilter').value;
+    loadOrders(status);
+}
+
+function showAddProductModal() {
+    document.getElementById('productModal').classList.add('active');
+    document.getElementById('productForm').reset();
+    document.getElementById('modalTitle').textContent = 'Add New Product';
+}
+
+function closeProductModal() {
+    document.getElementById('productModal').classList.remove('active');
+}
+
+document.getElementById('productForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const productData = {
+        name: document.getElementById('productName').value,
+        description: document.getElementById('productDescription').value,
+        price: parseFloat(document.getElementById('productPrice').value),
+        category: document.getElementById('productCategory').value,
+        brand: document.getElementById('productBrand').value,
+        stock_quantity: parseInt(document.getElementById('productStock').value),
+        image_url: document.getElementById('productImage').value,
+        featured: document.getElementById('productFeatured').checked
+    };
+    
+    try {
+        const response = await fetch(`${API_CONFIG.PRODUCT_SERVICE}/api/products`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productData)
+        });
+        
+        if (response.ok) {
+            alert('Product added successfully!');
+            closeProductModal();
+            loadProducts();
+        } else {
+            alert('Failed to add product');
+        }
+    } catch (error) {
+        console.error('Error adding product:', error);
+        alert('Error adding product');
+    }
+});
+
+async function deleteProduct(productId) {
+    if (!confirm('Are you sure you want to delete this product?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_CONFIG.PRODUCT_SERVICE}/api/products/${productId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            alert('Product deleted successfully!');
+            loadProducts();
+        } else {
+            alert('Failed to delete product');
+        }
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Error deleting product');
+    }
+}
+
+async function updateOrderStatus(orderId) {
+    const newStatus = prompt('Enter new status (pending, processing, completed, cancelled):');
+    
+    if (!newStatus) return;
+    
+    try {
+        const response = await fetch(`${API_CONFIG.ORDER_SERVICE}/api/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        if (response.ok) {
+            alert('Order status updated!');
+            loadOrders();
+        } else {
+            alert('Failed to update order status');
+        }
+    } catch (error) {
+        console.error('Error updating order:', error);
+        alert('Error updating order');
+    }
+}
+
+function viewOrder(orderId) {
+    // Implement order detail view
+    alert(`Order #${orderId} details - Implement detailed order view`);
+}
+
+function editProduct(productId) {
+    // Implement product editing
+    alert(`Edit product #${productId} - Implement product editing`);
+}
+
+function logout() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
+</script>

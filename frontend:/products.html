@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Brybell TechHub</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .products-page {
+            padding: 40px 0;
+        }
+        
+        .products-header {
+            margin-bottom: 30px;
+        }
+        
+        .products-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: 20px;
+        }
+        
+        .breadcrumb a {
+            color: var(--color-text-secondary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            color: var(--color-text);
+        }
+        
+        .products-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+        }
+        
+        .filters-sidebar {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .filter-section {
+            margin-bottom: 25px;
+        }
+        
+        .filter-section h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            cursor: pointer;
+        }
+        
+        .filter-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .filter-option label {
+            cursor: pointer;
+            font-size: 14px;
+            flex: 1;
+        }
+        
+        .price-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .price-inputs input {
+            padding: 8px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            font-size: 14px;
+        }
+        
+        .clear-filters {
+            width: 100%;
+            padding: 8px;
+            background-color: transparent;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-top: 15px;
+        }
+        
+        .clear-filters:hover {
+            background-color: var(--color-hover);
+        }
+        
+        .products-main {
+            min-height: 400px;
+        }
+        
+        .products-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+        }
+        
+        .products-count {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+        
+        .sort-select {
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .no-products {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--color-text-secondary);
+        }
+        
+        .no-products-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 40px;
+        }
+        
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid var(--color-border);
+            background-color: var(--color-surface);
+            color: var(--color-text);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination button.active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        @media (max-width: 768px) {
+            .products-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-sidebar {
+                position: static;
+            }
+            
+            .products-toolbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Header (same as index.html) -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">
+                    <h1>BRYBELL</h1>
+                    <span>TECHHUB</span>
+                </div>
+                
+                <div class="search-container">
+                    <input type="search" id="searchInput" placeholder="Search for phones, laptops, PlayStations...">
+                    <button id="searchBtn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="header-actions">
+                    <button id="themeToggle" class="icon-btn">
+                        <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="user-menu" id="userMenu">
+                        <button class="icon-btn" id="userBtn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                                <path d="M6 21c0-3.5 2.5-6 6-6s6 2.5 6 6" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <button class="icon-btn cart-btn" id="cartBtn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 2L7 6M17 6l2-4M3 6h18M5 6l2 14h10l2-14" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
+            </div>
+            
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="products.html?category=phones" class="nav-link">Phones</a>
+                <a href="products.html?category=laptops" class="nav-link">Laptops</a>
+                <a href="products.html?category=playstation" class="nav-link">PlayStation</a>
+                <a href="products.html?category=tvs" class="nav-link">TVs</a>
+                <a href="products.html" class="nav-link active">All Products</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="products-page">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span>›</span>
+                <span id="breadcrumbCurrent">Products</span>
+            </div>
+            
+            <div class="products-header">
+                <h1 id="pageTitle">All Products</h1>
+            </div>
+            
+            <div class="products-layout">
+                <!-- Filters Sidebar -->
+                <aside class="filters-sidebar">
+                    <div class="filter-section">
+                        <h3>Categories</h3>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cat-phones" value="phones" onchange="applyFilters()">
+                            <label for="cat-phones">Mobile Phones</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cat-laptops" value="laptops" onchange="applyFilters()">
+                            <label for="cat-laptops">Laptops</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cat-playstation" value="playstation" onchange="applyFilters()">
+                            <label for="cat-playstation">PlayStation</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cat-tvs" value="tvs" onchange="applyFilters()">
+                            <label for="cat-tvs">Smart TVs</label>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-section">
+                        <h3>Price Range</h3>
+                        <div class="price-inputs">
+                            <input type="number" id="minPrice" placeholder="Min" onchange="applyFilters()">
+                            <input type="number" id="maxPrice" placeholder="Max" onchange="applyFilters()">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-section" id="brandsSection">
+                        <h3>Brands</h3>
+                        <div id="brandFilters"></div>
+                    </div>
+                    
+                    <button class="clear-filters" onclick="clearAllFilters()">Clear All Filters</button>
+                </aside>
+                
+                <!-- Products Main -->
+                <div class="products-main">
+                    <div class="products-toolbar">
+                        <div class="products-count" id="productsCount">Loading...</div>
+                        <select class="sort-select" id="sortSelect" onchange="sortProducts()">
+                            <option value="default">Sort by: Default</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="name-asc">Name: A to Z</option>
+                            <option value="name-desc">Name: Z to A</option>
+                        </select>
+                    </div>
+                    
+                    <div id="productsGrid" class="product-grid">
+                        <!-- Products will be loaded here -->
+                    </div>
+                    
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <button id="closeCart" class="close-btn">×</button>
+        </div>
+        <div id="cartItems" class="cart-items"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">KES 0</span>
+            </div>
+            <a href="checkout.html" class="btn btn-primary btn-block">Checkout</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>BRYBELL TECHHUB</h3>
+                    <p>Your trusted source for premium tech products in Kenya.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Brybell TechHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        let allProducts = [];
+        let currentPage = 1;
+        const productsPerPage = 12;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            parseUrlParams();
+            loadProducts();
+            loadBrandFilters();
+        });
+        
+        function parseUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const category = params.get('category');
+            const search = params.get('search');
+            
+            if (category) {
+                document.getElementById(`cat-${category}`).checked = true;
+                const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+                document.getElementById('pageTitle').textContent = categoryName;
+                document.getElementById('breadcrumbCurrent').textContent = categoryName;
+            }
+            
+            if (search) {
+                document.getElementById('searchInput').value = search;
+                document.getElementById('pageTitle').textContent = `Search: ${search}`;
+            }
+        }
+        
+        async function loadProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            const productsCount = document.getElementById('productsCount');
+            
+            try {
+                productsGrid.innerHTML = '<p style="text-align: center; padding: 40px;">Loading products...</p>';
+                
+                const params = new URLSearchParams(window.location.search);
+                const search = params.get('search');
+                
+                let url = `${API_CONFIG.PRODUCT_SERVICE}/api/products?limit=100`;
+                
+                if (search) {
+                    url = `${API_CONFIG.SEARCH_SERVICE}/api/search?q=${encodeURIComponent(search)}&limit=100`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                allProducts = search ? data.results : data;
+                
+                applyFilters();
+                
+            } catch (error) {
+                console.error('Error loading products:', error);
+                productsGrid.innerHTML = '<div class="no-products"><div class="no-products-icon">😕</div><p>Failed to load products. Please try again.</p></div>';
+            }
+        }
+        
+        async function loadBrandFilters() {
+            try {
+                const response = await fetch(`${API_CONFIG.SEARCH_SERVICE}/api/search/filters`);
+                const data = await response.json();
+                
+                const brandFiltersEl = document.getElementById('brandFilters');
+                if (data.brands && data.brands.length > 0) {
+                    brandFiltersEl.innerHTML = data.brands.slice(0, 10).map(brand => `
+                        <div class="filter-option">
+                            <input type="checkbox" id="brand-${brand}" value="${brand}" onchange="applyFilters()">
+                            <label for="brand-${brand}">${brand}</label>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading brand filters:', error);
+            }
+        }
+        
+        function applyFilters() {
+            const selectedCategories = Array.from(document.querySelectorAll('[id^="cat-"]:checked')).map(cb => cb.value);
+            const selectedBrands = Array.from(document.querySelectorAll('[id^="brand-"]:checked')).map(cb => cb.value);
+            const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+            
+            let filtered = allProducts.filter(product => {
+                const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category);
+                const brandMatch = selectedBrands.length === 0 || selectedBrands.includes(product.brand);
+                const priceMatch = product.price >= minPrice && product.price <= maxPrice;
+                
+                return categoryMatch && brandMatch && priceMatch;
+            });
+            
+            displayProducts(filtered);
+        }
+        
+        function sortProducts() {
+            const sortBy = document.getElementById('sortSelect').value;
+            
+            let sorted = [...allProducts];
+            
+            switch(sortBy) {
+                case 'price-asc':
+                    sorted.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-desc':
+                    sorted.sort((a, b) => b.price - a.price);
+                    break;
+                case 'name-asc':
+                    sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'name-desc':
+                    sorted.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+            }
+            
+            allProducts = sorted;
+            applyFilters();
+        }
+        
+        function displayProducts(products) {
+            const productsGrid = document.getElementById('productsGrid');
+            const productsCount = document.getElementById('productsCount');
+            
+            productsCount.textContent = `${products.length} Products`;
+            
+            if (products.length === 0) {
+                productsGrid.innerHTML = '<div class="no-products"><div class="no-products-icon">🔍</div><h3>No products found</h3><p>Try adjusting your filters or search query</p></div>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+            
+            const startIndex = (currentPage - 1) * productsPerPage;
+            const endIndex = startIndex + productsPerPage;
+            const paginatedProducts = products.slice(startIndex, endIndex);
+            
+            productsGrid.innerHTML = paginatedProducts.map(product => createProductCard(product)).join('');
+            
+            renderPagination(products.length);
+        }
+        
+        function createProductCard(product) {
+            return `
+                <div class="product-card" onclick="window.location.href='product.html?id=${product.id}'">
+                    <img src="${product.image_url || 'https://via.placeholder.com/300'}" alt="${product.name}" class="product-image">
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-brand">${product.brand || ''}</div>
+                        <div class="product-price">KES ${product.price.toLocaleString()}</div>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id}, '${product.name}', ${product.price}, '${product.image_url || ''}')">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderPagination(totalProducts) {
+            const totalPages = Math.ceil(totalProducts / productsPerPage);
+            const paginationEl = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                paginationEl.innerHTML = '';
+                return;
+            }
+            
+            let html = `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>`;
+            
+            for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+                html += `<button onclick="changePage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+            
+            if (totalPages > 5) {
+                html += `<button disabled>...</button>`;
+                html += `<button onclick="changePage(${totalPages})">${totalPages}</button>`;
+            }
+            
+            html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>`;
+            
+            paginationEl.innerHTML = html;
+        }
+        
+        function changePage(page) {
+            const totalPages = Math.ceil(allProducts.length / productsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            applyFilters();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function clearAllFilters() {
+            document.querySelectorAll('[id^="cat-"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('[id^="brand-"]').forEach(cb => cb.checked = false);
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            document.getElementById('sortSelect').value = 'default';
+            
+            applyFilters();
+        }
+        
+        function addToCart(id, name, price, image) {
+            cart.addItem({ id, name, price, image_url: image });
+        }
+    </script>
+</body>
+</html>
